@@ -35,7 +35,6 @@ const App = () => {
   }
 
   const getTotalWaves = async () => {
-    console.log("Beginning total waves: " + totalWaves);
     const {ethereum} = window;
     if (ethereum){
       const provider = new ethers.providers.Web3Provider(ethereum);
@@ -83,9 +82,8 @@ const App = () => {
         await waveTxn.wait();
         console.log("Mined -- ", waveTxn.hash);
 
-        count = await wavePortalContract.getTotalWaves();
-        console.log("Retrieved total wave count...", count.toNumber());
-        totalWaves = count.toNumber();
+        totalWaves = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", totalWaves);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
