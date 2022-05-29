@@ -48,7 +48,7 @@ const App = () => {
     let contract = await getContract();
     let count = await contract.getTotalWaves();
     console.log("Total Waves: " + count.toNumber());
-    setTotalWaves(...totalWaves => count);
+    setTotalWaves(count);
   }
   
 
@@ -109,7 +109,7 @@ const App = () => {
           SPACE IS COOL. Connect your Ethereum wallet to request today's Astronomy Photo of the Day!
         </div>
         <div>
-        Cool photos delivered: { totalWaves }</div>
+        Cool photos delivered: { totalWaves[0] }</div>
         <button className="waveButton" onClick={wave}>
           Get cool space photo!
         </button>
