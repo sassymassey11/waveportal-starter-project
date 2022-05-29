@@ -7,7 +7,7 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const contractAddress = "0x058EE40fEC1236F9c91F9bd2982C5cd60707F4c4";
   const contractABI = abi.abi;
-  var totalWaves = 0;
+  const [totalWaves, setTotalWaves] = useState(0);
   
   const checkIfWalletIsConnected = async () => {
     try {
@@ -34,17 +34,23 @@ const App = () => {
     }
   }
 
-  const getTotalWaves = async () => {
+  const getContract = async () => {
     const {ethereum} = window;
     if (ethereum){
       const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-      debugger;
-      totalWaves = await wavePortalContract.getTotalWaves();
-      console.log("Total Waves: " + totalWaves);
-    }
+        let wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+      return wavePortalContract;
   }
+}
+  
+  const getTotalWaves = async () => {
+    let contract = await getContract();
+    let count = await contract.getTotalWaves();
+    console.log("Total Waves: " + count.toNumber());
+    setTotalWaves(...totalWaves => count);
+  }
+  
 
   const connectWallet = async () => {
     try {
@@ -66,27 +72,19 @@ const App = () => {
 
   const wave = async () => {
     try {
-      const { ethereum } = window;
+      let wavePortalContract = getContract();
 
-      if (ethereum) {
-        const provider = new ethers.providers.Web3Provider(ethereum);
-        const signer = provider.getSigner();
-        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+      await getTotalWaves();
+      console.log("Retrieved total wave count...", count.toNumber());
 
-        let count = await wavePortalContract.getTotalWaves();
-        console.log("Retrieved total wave count...", count.toNumber());
+      const waveTxn = await wavePortalContract.wave();
+      console.log("Mining...", waveTxn.hash);
 
-        const waveTxn = await wavePortalContract.wave();
-        console.log("Mining...", waveTxn.hash);
+      await waveTxn.wait();
+      console.log("Mined -- ", waveTxn.hash);
 
-        await waveTxn.wait();
-        console.log("Mined -- ", waveTxn.hash);
-
-        totalWaves = await wavePortalContract.getTotalWaves();
-        console.log("Retrieved total wave count...", totalWaves);
-      } else {
-        console.log("Ethereum object doesn't exist!");
-      }
+      await getTotalWaves();
+      console.log("Retrieved total wave count...", totalWaves);
     } catch (error) {
       console.log(error)
     }
