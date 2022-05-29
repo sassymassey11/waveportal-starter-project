@@ -5,9 +5,10 @@ import abi from './utils/WavePortal.json';
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
-  const contractAddress = "0x058EE40fEC1236F9c91F9bd2982C5cd60707F4c4";
+  const contractAddress = "0x516B7256F74B1C58D343528c04cC2d84e79D8527";
   const contractABI = abi.abi;
   const [totalWaves, setTotalWaves] = useState(0);
+  const [allWaves, setAllWaves] = useState([]);
   
   const checkIfWalletIsConnected = async () => {
     try {
@@ -26,6 +27,7 @@ const App = () => {
         const account = accounts[0];
         console.log("Found an authorized account:", account);
         setCurrentAccount(account)
+        getAllWaves();
       } else {
         console.log("No authorized account found")
       }
@@ -50,6 +52,21 @@ const App = () => {
     console.log("Total Waves: " + count.toNumber());
     setTotalWaves(count);
   }
+
+  const getAllWaves = async () => {
+    const wavePortalContract = await getContract();
+    const waves = await wavePortalContract.getAllWaves();
+
+    let wavesCleaned = [];
+      waves.forEach(wave => {
+        wavesCleaned.push({
+          address: wave.waver,
+          timestamp: new Date(wave.timestamp * 1000),
+          message: wave.message
+          });
+    });
+    setAllWaves(wavesCleaned);
+}
   
 
   const connectWallet = async () => {
@@ -72,19 +89,18 @@ const App = () => {
 
   const wave = async () => {
     try {
-      let wavePortalContract = getContract();
+      let wavePortalContract = await getContract();
+      console.log(wavePortalContract.functions);
 
-      await getTotalWaves();
-      console.log("Retrieved total wave count...", count.toNumber());
-
-      const waveTxn = await wavePortalContract.wave();
+      const waveTxn = await wavePortalContract.wave("This is a message!");
       console.log("Mining...", waveTxn.hash);
 
       await waveTxn.wait();
       console.log("Mined -- ", waveTxn.hash);
 
       await getTotalWaves();
-      console.log("Retrieved total wave count...", totalWaves);
+      await getAllWaves();
+
     } catch (error) {
       console.log(error)
     }
@@ -96,22 +112,23 @@ const App = () => {
 
   useEffect(() => {
     getTotalWaves();
+    getAllWaves();
   }, [])
   
   return (
     <div className="mainContainer">
       <div className="dataContainer">
         <div className="header">
-        👋 Hey there!
+        Pets of Web3
         </div>
 
         <div className="bio">
-          SPACE IS COOL. Connect your Ethereum wallet to request today's Astronomy Photo of the Day!
+          Got a furry, scaly, or feathered friend? Connect your Ethereum wallet to join Pets of Web3 today!
         </div>
         <div>
-        Cool photos delivered: { totalWaves[0] }</div>
+        Pets onboarded: { parseInt(totalWaves) }</div>
         <button className="waveButton" onClick={wave}>
-          Get cool space photo!
+          Onboard your pet!
         </button>
 
         {!currentAccount && (
@@ -119,6 +136,14 @@ const App = () => {
             Connect Wallet
           </button>
         )}
+        {allWaves.map((wave, index) => {
+          return (
+            <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+              <div>Address: {wave.address}</div>
+              <div>Time: {wave.timestamp.toString()}</div>
+              <div>Message: {wave.message}</div>
+            </div>)
+        })}
       </div>
     </div>
   );
