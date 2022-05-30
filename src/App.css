@@ -15,13 +15,16 @@
 .header {
   text-align: center;
   font-size: 32px;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: 'Roboto Slab', serif;
 }
 
 .bio {
   text-align: center;
   color: gray;
   margin-top: 16px;
+  font-weight: 400;
+  font-family: 'Roboto Flex', sans-serif;
 }
 
 .waveButton {
@@ -31,4 +34,37 @@
   border: 0;
   border-radius: 5px;
   
+}
+
+div.polaroid {
+  width: 50%;
+  height: auto;
+  background-color: white;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin-bottom: 25px;
+}
+
+.waveCard {
+  background-color: #df9e30;
+  max-width: 50%;
+  height: auto;
+  marginTop: "16px";
+  padding: "8px";
+}
+
+.petImage{
+  max-width: 100%;
+  height: auto;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+div.container {
+  text-align: center;
+  padding: 10px 20px;
 }

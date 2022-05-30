@@ -9,6 +9,7 @@ const App = () => {
   const contractABI = abi.abi;
   const [totalWaves, setTotalWaves] = useState(0);
   const [allWaves, setAllWaves] = useState([]);
+  const [contract, setContract] = useState([]);
   
   const checkIfWalletIsConnected = async () => {
     try {
@@ -27,7 +28,6 @@ const App = () => {
         const account = accounts[0];
         console.log("Found an authorized account:", account);
         setCurrentAccount(account)
-        getAllWaves();
       } else {
         console.log("No authorized account found")
       }
@@ -37,25 +37,29 @@ const App = () => {
   }
 
   const getContract = async () => {
-    const {ethereum} = window;
-    if (ethereum){
-      const provider = new ethers.providers.Web3Provider(ethereum);
+    try {
+      const {ethereum} = window;
+      if (ethereum){
+        const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         let wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-      return wavePortalContract;
+        console.log("Created contract: ", wavePortalContract.address);
+        return wavePortalContract;
+      }
+    }
+    catch(error){
+      console.log(error);
+    }
   }
-}
   
-  const getTotalWaves = async () => {
-    let contract = await getContract();
+  const getTotalWaves = async (contract) => {
     let count = await contract.getTotalWaves();
     console.log("Total Waves: " + count.toNumber());
     setTotalWaves(count);
   }
 
-  const getAllWaves = async () => {
-    const wavePortalContract = await getContract();
-    const waves = await wavePortalContract.getAllWaves();
+  const getAllWaves = async (contract) => {
+    const waves = await contract.getAllWaves();
 
     let wavesCleaned = [];
       waves.forEach(wave => {
@@ -89,10 +93,10 @@ const App = () => {
 
   const wave = async () => {
     try {
-      let wavePortalContract = await getContract();
-      console.log(wavePortalContract.functions);
+      
+      console.log("Available functions: " , contract.functions);
 
-      const waveTxn = await wavePortalContract.wave("This is a message!");
+      const waveTxn = await contract.wave("This is a message!");
       console.log("Mining...", waveTxn.hash);
 
       await waveTxn.wait();
@@ -107,13 +111,22 @@ const App = () => {
   }
 
   useEffect(() => {
-    checkIfWalletIsConnected();
+    const fetchContract = async () => {
+      const waveContract = await getContract();
+      await setContract(waveContract);
+      return waveContract;
+    }
+
+    fetchContract()
+      .then((contract) => {
+      console.log("Fetched Contract.  Address: ", contract.address);
+      checkIfWalletIsConnected();
+      getTotalWaves(contract);
+      getAllWaves(contract);
+      })     
+      .catch(console.error);    
   }, [])
 
-  useEffect(() => {
-    getTotalWaves();
-    getAllWaves();
-  }, [])
   
   return (
     <div className="mainContainer">
@@ -123,26 +136,38 @@ const App = () => {
         </div>
 
         <div className="bio">
-          Got a furry, scaly, or feathered friend? Connect your Ethereum wallet to join Pets of Web3 today!
+          Got a furry, scaly, or feathered friend? Onboard your pet today!
         </div>
-        <div>
-        Pets onboarded: { parseInt(totalWaves) }</div>
-        <button className="waveButton" onClick={wave}>
+
+        {currentAccount && (
+          <button className="waveButton" onClick={wave}>
           Onboard your pet!
-        </button>
+          </button>
+        )}
+
 
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet
           </button>
         )}
+
+        <div className="bio">
+        Pets onboarded: { parseInt(totalWaves) }
+        </div>
+
+        
         {allWaves.map((wave, index) => {
           return (
-            <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
-              <div>Address: {wave.address}</div>
-              <div>Time: {wave.timestamp.toString()}</div>
-              <div>Message: {wave.message}</div>
-            </div>)
+            <div key={index} class="waveCard">
+              <div class="polaroid center">
+                <img class="petImage" src="Callisto.JPG"/>
+                <div>Address: {wave.address}</div>
+                <div>Time: {wave.timestamp.toString()}</div>
+                <div>Message: {wave.message}</div>
+              </div>
+            </div>
+          )
         })}
       </div>
     </div>
