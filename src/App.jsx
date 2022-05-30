@@ -5,7 +5,7 @@ import abi from './utils/WavePortal.json';
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
-  const contractAddress = "0x516B7256F74B1C58D343528c04cC2d84e79D8527";
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const contractABI = abi.abi;
   const [totalWaves, setTotalWaves] = useState(0);
   const [allWaves, setAllWaves] = useState([]);
@@ -43,7 +43,8 @@ const App = () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         let wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
-        console.log("Created contract: ", wavePortalContract.address);
+        let balance = await provider.getBalance(contractAddress);
+        console.log("Contract Address: " + wavePortalContract.address + " with Balance: " + balance);
         return wavePortalContract;
       }
     }
@@ -119,7 +120,6 @@ const App = () => {
 
     fetchContract()
       .then((contract) => {
-      console.log("Fetched Contract.  Address: ", contract.address);
       checkIfWalletIsConnected();
       getTotalWaves(contract);
       getAllWaves(contract);
