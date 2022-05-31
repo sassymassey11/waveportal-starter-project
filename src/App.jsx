@@ -5,7 +5,7 @@ import abi from './utils/WavePortal.json';
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
-  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const contractAddress = "0x2c4aa4b650BC1825620c0D2DEa9B18de96496263";
   const contractABI = abi.abi;
   const [totalWaves, setTotalWaves] = useState(0);
   const [allWaves, setAllWaves] = useState([]);
@@ -159,13 +159,13 @@ const App = () => {
         
         {allWaves.map((wave, index) => {
           return (
-            <div key={index} class="waveCard">
-              <div class="polaroid center">
+            <div key={index} class="polaroid center">
+              
                 <img class="petImage" src="Callisto.JPG"/>
-                <div>Address: {wave.address}</div>
-                <div>Time: {wave.timestamp.toString()}</div>
-                <div>Message: {wave.message}</div>
-              </div>
+                <div>Name:</div>
+                <div>Age: </div>
+                <div>Favorite Toy: </div>
+              
             </div>
           )
         })}
